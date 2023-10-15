@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import {
   delay,
-  Observable, share, Subject,
+  Observable, Subject,
 } from 'rxjs';
 import {HttpClient} from "@angular/common/http";
 import {takeUntil} from "rxjs/operators";
@@ -18,7 +18,6 @@ export class AppComponent {
 
   requestInvoked = true;
   source$: Subject<number> = new Subject<number>();
-  multicasted$: Observable<number> = this.source$.pipe(share());
   stream1$: Observable<number> | undefined;
   stream2$: Observable<number> | undefined;
   stream3$: Observable<number> | undefined;
@@ -27,11 +26,9 @@ export class AppComponent {
     this.fetchData(this.requestInvoked);
     this.requestInvoked = false;
 
-    if (this.multicasted$) {
-      this.stream1$ = this.multicasted$.pipe(delay(1000));
-      this.stream2$ = this.multicasted$.pipe(delay(2000));
-      this.stream3$ = this.multicasted$.pipe(delay(3000));
-    }
+      this.stream1$ = this.source$.pipe(delay(1000));
+      this.stream2$ = this.source$.pipe(delay(2000));
+      this.stream3$ = this.source$.pipe(delay(3000));
   }
   fetchData(requestInvoked: boolean) {
     const cancelRequest = new Subject<void>();
