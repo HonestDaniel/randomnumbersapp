@@ -1,18 +1,20 @@
 import { Component } from '@angular/core';
 import {
-  delay,
-  Observable, share, Subject,
+  delay, mergeMap,
+  Observable, of, share, tap,
 } from 'rxjs';
 import {HttpClient} from "@angular/common/http";
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
+  templateUrl: 'app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.requestData();
+  }
 
   stream1$: Observable<number> | undefined;
   stream2$: Observable<number> | undefined;
