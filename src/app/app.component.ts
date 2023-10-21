@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import {
   delay, mergeMap,
-  Observable, of, share, Subject, tap,
+  Observable, of, share, shareReplay, Subject, switchMap, tap,
 } from 'rxjs';
 import {HttpClient} from "@angular/common/http";
 
@@ -11,30 +11,32 @@ import {HttpClient} from "@angular/common/http";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-
   stream1$: Observable<number> | undefined;
   stream2$: Observable<number> | undefined;
   stream3$: Observable<number> | undefined;
-  refresh$: Subject<void> = new Subject<void>();
+  refresh$: Observable<number> | undefined;
+  refreshTrigger$ = new Subject<void>();
 
   constructor(private http: HttpClient) {
-    this.refresh$.pipe(
-      delay(1000),
-      share()
-    ).subscribe(() => {
-      this.stream1$ = this.http.get<number>(
-        'https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain&rnd=new'
-      ).pipe(
-        delay(1000),
-        share()
-      );
+    this.refresh$ = this.refreshTrigger$.pipe(
+      switchMap(() => this.fetchData()),
+      shareReplay(1)
+    );
 
-      this.stream2$ = this.stream1$.pipe(delay(2000));
-      this.stream3$ = this.stream1$.pipe(delay(3000));
-    });
+    this.stream1$ = this.refresh$;
+    this.stream2$ = this.refresh$.pipe(delay(1000));
+    this.stream3$ = this.refresh$.pipe(delay(2000));
   }
 
   refreshData(): void {
-    this.refresh$.next();
+    this.refreshTrigger$.next();
+  }
+
+  private fetchData(): Observable<number> {
+    return this.http.get<number>(
+      'https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain&rnd=new'
+    ).pipe(
+      delay(1000)
+    );
   }
 }
