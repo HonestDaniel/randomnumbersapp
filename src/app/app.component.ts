@@ -23,9 +23,9 @@ export class AppComponent {
       shareReplay(1)
     );
 
-    this.stream1$ = this.refresh$;
-    this.stream2$ = this.refresh$.pipe(delay(1000));
-    this.stream3$ = this.refresh$.pipe(delay(2000));
+    this.stream1$ = this.refresh$.pipe(delay(1000));
+    this.stream2$ = this.refresh$.pipe(delay(2000));
+    this.stream3$ = this.refresh$.pipe(delay(3000));
   }
 
   refreshData(): void {
@@ -35,8 +35,6 @@ export class AppComponent {
   private fetchData(): Observable<number> {
     return this.http.get<number>(
       'https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain&rnd=new'
-    ).pipe(
-      delay(1000)
-    );
+    )
   }
 }
